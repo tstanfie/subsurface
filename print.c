@@ -155,12 +155,12 @@ static void print(int divenr, cairo_t *cr, double x, double y, double w, double 
 	cairo_scale(cr, 0.5, 0.5);
 
 	/* Dive plot in the upper two thirds - note the scaling */
-	show_dive_profile(dive, cr, w*2, h*1.33);
+	show_dive_profile(dive, cr, w*2, h);
 
 	/* Dive information in the lower third */
-	cairo_translate(cr, 0, h*1.33);
+	cairo_translate(cr, 0, h);
 
-	show_dive_text(dive, cr, w*2, h*0.67, font);
+	show_dive_text(dive, cr, w*2, h, font);
 
 	cairo_restore(cr);
 }
@@ -179,15 +179,11 @@ static void draw_page(GtkPrintOperation *operation,
 	font = pango_font_description_from_string("Sans");
 
 	w = gtk_print_context_get_width(context)/2;
-	h = gtk_print_context_get_height(context)/3;
+	h = gtk_print_context_get_height(context);
 
-	nr = page_nr*6;
+	nr = page_nr*2;
 	print(nr+0, cr, 0,   0, w, h, font);
 	print(nr+1, cr, w,   0, w, h, font);
-	print(nr+2, cr, 0,   h, w, h, font);
-	print(nr+3, cr, w,   h, w, h, font);
-	print(nr+4, cr, 0, 2*h, w, h, font);
-	print(nr+5, cr, w, 2*h, w, h, font);
 
 	pango_font_description_free(font);
 }
@@ -208,7 +204,7 @@ void do_print(void)
 	print = gtk_print_operation_new();
 	if (settings != NULL)
 		gtk_print_operation_set_print_settings(print, settings);
-	pages = (dive_table.nr + 5) / 6;
+	pages = (dive_table.nr + 1) / 2;
 	gtk_print_operation_set_n_pages(print, pages);
 	g_signal_connect(print, "begin_print", G_CALLBACK(begin_print), NULL);
 	g_signal_connect(print, "draw_page", G_CALLBACK(draw_page), NULL);

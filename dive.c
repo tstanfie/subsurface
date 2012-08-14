@@ -120,6 +120,28 @@ double get_depth_units(unsigned int mm, int *frac, const char **units)
 	return d;
 }
 
+double get_weight_units(unsigned int grams, int *frac, const char **units)
+{
+	int decimals;
+	double value;
+	const char* unit;
+
+	if (output_units.weight == LBS) {
+		value = grams_to_lbs(grams);
+		unit = "lbs";
+		decimals = 0;
+	} else {
+		value = grams / 1000.0;
+		unit = "kg";
+		decimals = 1;
+	}
+	if (frac)
+		*frac = decimals;
+	if (units)
+		*units = unit;
+	return value;
+}
+
 struct dive *alloc_dive(void)
 {
 	const int initial_samples = 5;
@@ -471,6 +493,10 @@ struct dive *fixup_dive(struct dive *dive)
 			cyl->start.mbar = 0;
 		if (same_rounded_pressure(cyl->sample_end, cyl->end))
 			cyl->end.mbar = 0;
+	}
+	for (i = 0; i < MAX_WEIGHTSYSTEMS; i++) {
+		weightsystem_t *ws = dive->weightsystem + i;
+		add_weightsystem_description(ws);
 	}
 
 	return dive;

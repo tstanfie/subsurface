@@ -97,8 +97,9 @@ extern int weightsystem_none(void *_data);
 
 extern int get_pressure_units(unsigned int mb, const char **units);
 extern double get_depth_units(unsigned int mm, int *frac, const char **units);
-extern double get_volume_units(unsigned int mm, int *frac, const char **units);
-extern double get_temp_units(unsigned int mm, const char **units);
+extern double get_volume_units(unsigned int ml, int *frac, const char **units);
+extern double get_temp_units(unsigned int mk, const char **units);
+extern double get_weight_units(unsigned int grams, int *frac, const char **units);
 
 static inline double grams_to_lbs(int grams)
 {
@@ -338,11 +339,13 @@ extern void exit_ui(void);
 extern void report_error(GError* error);
 
 extern void add_cylinder_description(cylinder_type_t *);
+extern void add_weightsystem_description(weightsystem_t *);
 extern void add_people(const char *string);
 extern void add_location(const char *string);
 extern void remember_event(const char *eventname);
 extern void evn_foreach(void (*callback)(const char *, int *, void *), void *data);
 
+extern int add_new_dive(struct dive *dive);
 extern int edit_dive_info(struct dive *dive);
 extern void dive_list_update_dives(void);
 extern void flush_divelist(struct dive *dive);

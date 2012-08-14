@@ -178,37 +178,31 @@ static int parse_samples(device_data_t *devdata, struct dive **divep, dc_parser_
 	rc = dc_parser_samples_foreach(parser, sample_cb, divep);
 
 	if(rc == DC_STATUS_SUCCESS) {
-		switch (devdata->type) {
+		switch (dc_device_get_type(devdata->device)) {
 		case DC_FAMILY_UWATEC_SMART:
-			switch (devdata->devinfo.model) {
-			case 0x11: // Galileo Sol
-			/*
-			 * The Dive computer records 5 minutes of samples when at the surface.
-			 * In order to match the computers reported dive time and surface intervals,
-			 * we need to remove the last 5 minutes from the samples of the dive.
-			 */
-			{
-				struct dive *dive = *divep;
-				struct sample *sample;
-				duration_t maxtime;
-				int i, deltat = 0;
+		/*
+		 * The Dive computer records 5 minutes of samples when at the surface.
+		 * In order to match the computers reported dive time and surface intervals,
+		 * we need to remove the last 5 minutes from the samples of the dive.
+		 */
+		{
+			struct dive *dive = *divep;
+			struct sample *sample;
+			duration_t maxtime;
+			int i, deltat = 0;
 
-				sample = dive->samples ? dive->sample+dive->samples-1 : NULL;
-				if(sample) {
-					maxtime = sample->time;
+			sample = dive->samples ? dive->sample+dive->samples-1 : NULL;
+			if(sample) {
+				maxtime = sample->time;
 
-					for(i = dive->samples-2; i >= 0 && deltat < 300; i--) {
-						sample = dive->sample+i;
-						deltat = maxtime.seconds - sample->time.seconds;
-					}
-
-					dive->samples = i+2;
+				for(i = dive->samples-2; i >= 0 && deltat < 300; i--) {
+					sample = dive->sample+i;
+					deltat = maxtime.seconds - sample->time.seconds;
 				}
+
+				dive->samples = i+2;
 			}
-				break;
-			default:
-				break;
-			}
+		}
 			break;
 		default:
 			break;

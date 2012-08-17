@@ -179,11 +179,13 @@ static void draw_page(GtkPrintOperation *operation,
 	font = pango_font_description_from_string("Sans");
 
 	w = gtk_print_context_get_width(context)/2;
-	h = gtk_print_context_get_height(context);
+	h = gtk_print_context_get_height(context)/2;
 
-	nr = page_nr*2;
+	nr = page_nr*4;
 	print(nr+0, cr, 0,   0, w, h, font);
-	print(nr+1, cr, w,   0, w, h, font);
+	print(nr+1, cr, 0,   h, w, h, font);
+	print(nr+2, cr, w,   0, w, h, font);
+	print(nr+3, cr, w,   h, w, h, font);
 
 	pango_font_description_free(font);
 }
@@ -199,12 +201,20 @@ void do_print(void)
 	int pages;
 	GtkPrintOperation *print;
 	GtkPrintOperationResult res;
-
+	GtkPageSetup *setup;
 	repaint_dive();
 	print = gtk_print_operation_new();
+	setup = gtk_print_operation_get_default_page_setup(print);
+
 	if (settings != NULL)
 		gtk_print_operation_set_print_settings(print, settings);
-	pages = (dive_table.nr + 1) / 2;
+	
+	setup = gtk_print_run_page_setup_dialog(GTK_WINDOW(main_window),
+						setup,
+						gtk_print_operation_get_print_settings(print));
+	gtk_print_operation_set_default_page_setup(print, setup);
+	
+	pages = (dive_table.nr + 3) / 4;
 	gtk_print_operation_set_n_pages(print, pages);
 	g_signal_connect(print, "begin_print", G_CALLBACK(begin_print), NULL);
 	g_signal_connect(print, "draw_page", G_CALLBACK(draw_page), NULL);
